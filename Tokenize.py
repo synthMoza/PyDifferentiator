@@ -1,3 +1,5 @@
+from sys import exit
+
 # The list of all supported operators and delimiters
 operators = ['+', '-', '*', '/', '(', ')']
 delimiters = [' ', '\n','\t']
@@ -9,7 +11,7 @@ class token:
         self.type = ""
     def __repr__(self) -> str:
         """ For debugging purposes only - represents as its value"""
-        return str(self.value)
+        return "Type: " + str(self.type) + "\tValue: " + str(self.value)
 
 def isOperator(sym : chr) -> bool:
     """ Return true if the given symbol is a supported operator, false if not """
@@ -24,7 +26,7 @@ def isDelimiter(sym : chr) -> bool:
         return True
     else:
         return False
-
+    
 def tokenize(input_str : str) -> list:
     """ Tokenizes the given string - returns the list of tokens (see class token)"""
     # The result list and the temp variable for numbers
@@ -51,8 +53,10 @@ def tokenize(input_str : str) -> list:
         elif isDelimiter(sym):
             # Skip unneccessary symbols
             continue
-        else:
+        elif sym.isdigit():
             # Prepare the number for futher tokenization
             raw_number += sym
+        else:
+            exit("Fatal error: unknown symbol: " + sym)
 
     return result
