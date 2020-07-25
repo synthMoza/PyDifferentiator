@@ -7,11 +7,11 @@ input_str = input("Enter the expression >>> ")
 token_list = tokenize(input_str)
 
 # Debug - print all tokens with their type and value
-# pprint(token_list)
+pprint(token_list)
 
 # Get the tree of this expresion
-_builder = treeBuilder(token_list)
-tree_head = _builder.getHead()
+# _builder = treeBuilder(token_list)
+# tree_head = _builder.getHead()
 
 # Debug - print the tree
 # _builder.printTree(tree_head)

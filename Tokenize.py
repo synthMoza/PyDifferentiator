@@ -5,6 +5,8 @@ operators = ['+', '-', '*', '/', '(', ')']
 delimiters = [' ', '\n','\t']
 
 # Token class that has its type (operation or number) and value
+# Avalible token types: "num", "op", "var"
+# "var" - only supported "x"
 class token:
     def __init__(self) -> None:
         self.value = 0
@@ -19,6 +21,10 @@ def isOperator(sym : chr) -> bool:
         return True
     else:
         return False
+
+def isVariable(sym : chr) -> bool:
+    """ Return true if the given symbol is a supported variable, false if not """
+    return sym == "x"
 
 def isDelimiter(sym : chr) -> bool:
     """ Return true if the given symbol is a delimiter, false if not """
@@ -53,6 +59,11 @@ def tokenize(input_str : str) -> list:
         elif isDelimiter(sym):
             # Skip unneccessary symbols
             continue
+        elif isVariable(sym):
+            _token = token()
+            _token.type = "var"
+            _token.value = sym
+            result.append(_token)
         elif sym.isdigit():
             # Prepare the number for futher tokenization
             raw_number += sym
