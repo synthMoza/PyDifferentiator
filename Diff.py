@@ -143,6 +143,42 @@ def diffTree(_node : Node) -> Node:
                 return cos_node
             else:
                 exit("Error! diffTree(): no children for operator " + _node.token_t.value)
+        elif _node.token_t.value == "tg":
+            # (tg f)' = f' / cos^2 f
+            tg_node = Node("/", "op")
+            r_tg_node = Node("^", "op")
+            cos_node = Node("cos","op")
+
+            if _node.children:
+                cos_node.children.append(_node.children[0].copyNode())
+                tg_node.children.append(diffTree(_node.children[0].copyNode()))
+                r_tg_node.children.append(cos_node)
+                r_tg_node.children.append(Node(2, "num"))
+                tg_node.children.append(r_tg_node)
+
+                return tg_node
+            else:
+                exit("Error! diffTree(): no children for operator " + _node.token_t.value)
+        elif _node.token_t.value == "ctg":
+            # (ctg f)' = -1 * f' / sin^2 f
+            mul_node  = Node("*", "op")
+            ctg_node = Node("/", "op")
+            r_ctg_node = Node("^", "op")
+            sin_node = Node("sin","op")
+
+            if _node.children:
+
+                mul_node.children.append(Node(-1, "num"))
+                mul_node.children.append(diffTree(_node.children[0].copyNode()))
+                ctg_node.children.append(mul_node)
+                sin_node.children.append(_node.children[0].copyNode())
+                r_ctg_node.children.append(sin_node)
+                r_ctg_node.children.append(Node(2, "num"))
+                ctg_node.children.append(r_ctg_node)
+                
+                return ctg_node
+            else:
+                exit("Error! diffTree(): no children for operator " + _node.token_t.value)
         else:
             exit("Error! diffTree(): unknown operator " + _node.token_t.value)
     else:

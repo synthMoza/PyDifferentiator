@@ -2,7 +2,7 @@ The documentation conforms to the latest version
 # What is this?  
 This is a simple app that allows you to diffirintiate the expression
 # Syntax  
-Allowed operations are: +, -, /, \*, ^, ln, sin, cos
+Allowed operations are: +, -, /, \*, ^, ln, sin, cos.    
 For variables you should use only "x"
 
 # How it works?  

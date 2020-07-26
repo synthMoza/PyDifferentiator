@@ -6,6 +6,7 @@ from Analyze import printTree
 from Diff import diffTree
 from Diff import simplifyTree
 from Diff import simplifyVar
+from Output import latexOutput
 
 print("============================================")
 print("\tPyDifferiantiator v. 0.0")
@@ -27,17 +28,20 @@ tree_head = _builder.getHead()
 
 diff_head = diffTree(tree_head)
 
+# Not the best solution, but good for small expressions
 for i in range(1, 4):
     diff_head = simplifyVar(diff_head)
     # print("Debug")  
     # print(printTree(diff_head))
     diff_head = simplifyTree(diff_head)
 
-# Temp output - prints the simplified tree
-print("The result expression is")
-print(printTree(diff_head))
+# Debug output - prints the simplified tree
+# print("The result expression is")
+# print(printTree(diff_head))
 
 
 # Debug - count the tree (no variables)
 # value = countTree(tree_head)
 # print("The value is", value)
+
+latexOutput(tree_head, diff_head)
