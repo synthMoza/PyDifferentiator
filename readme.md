@@ -7,13 +7,16 @@ For variables you should use only "x"
 # How to use?  
 If you use Linux, you can use the Makefile by typing in terminal (in the project directory):  
 > make
+
 Makefil compiles the program, asks you to enter the expression in the console, then outputs the result into the output.tex, compiles it and opens the ``.pdf`` file, deleting temporary tex files.  
 
 If you use Windows or Makefile doesn't work, you can compile by yourself and compile LaTeX file (example for Linux):  
 > python3 Start.py
 > pdflatex output.tex output.pdf
+
 To open it, you may use any pdf program(for example on Linux you may use):  
 > xdg-open output.pdf
+
 # How it works?  
 The algorithm is simple: at first, the expression is being tokenized, then the tree is build based on the token list, and after this the tree is being diffirintiated recursively. After simple simplification, this tree is put into a simple latex file and opens it.
 
