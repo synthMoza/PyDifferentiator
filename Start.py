@@ -9,7 +9,7 @@ from Diff import simplifyVar
 from Output import latexOutput
 
 print("============================================")
-print("\tPyDifferiantiator v. 0.0")
+print("\tPyDifferiantiator v. 0.1")
 print("============================================")
 input_str = input("Enter the expression >>> ")
 # Get a list of tokens

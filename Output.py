@@ -10,7 +10,7 @@ def latexOutput(original_head : Node, diff_head : Node) -> None:
     file.write("\\usepackage{xcolor}\n")
     file.write("\\usepackage{hyperref}\n")
     file.write("\\usepackage[russian]{babel}\n")
-    file.write("    \\title{\\textbf{PyDifferniator v. 0.0}}\n")
+    file.write("    \\title{\\textbf{PyDifferniator v. 0.1}}\n")
     file.write("    \\author{Author: \\href{https://github.com/synthMoza}{synthMoza}}\n")
     file.write("    \\date{\\href{https://github.com/synthMoza/PyDifferentiator}{GitHub Repository}}\n")
     file.write("\\usepackage{graphicx}\n")
