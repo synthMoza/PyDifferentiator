@@ -11,7 +11,7 @@ If you use Linux, you can use the Makefile by typing in terminal (in the project
 Makefile compiles the program, asks you to enter the expression in the console, then outputs the result into the output.tex, compiles it and opens the ``.pdf`` file, deleting temporary tex files.  
 
 If you use Windows or Makefile doesn't work, you can compile by yourself and compile LaTeX file (example for Linux):  
-> python3 Start.py  
+> python3 Code/Start.py
 > pdflatex output.tex output.pdf
 
 To open it, you may use any pdf program(for example on Linux you may use):  
