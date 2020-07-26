@@ -7,6 +7,9 @@ from Diff import diffTree
 from Diff import simplifyTree
 from Diff import simplifyVar
 
+print("============================================")
+print("\tPyDifferiantiator v. 0.0")
+print("============================================")
 input_str = input("Enter the expression >>> ")
 # Get a list of tokens
 token_list = tokenize(input_str)
@@ -24,14 +27,15 @@ tree_head = _builder.getHead()
 
 diff_head = diffTree(tree_head)
 
-diff_head_t = simplifyVar(diff_head)
-# print("Debug")
-# print(printTree(diff_head_t))
-diff_head_s = simplifyTree(diff_head_t)
+for i in range(1, 4):
+    diff_head = simplifyVar(diff_head)
+    # print("Debug")  
+    # print(printTree(diff_head))
+    diff_head = simplifyTree(diff_head)
 
 # Temp output - prints the simplified tree
 print("The result expression is")
-print(printTree(diff_head_s))
+print(printTree(diff_head))
 
 
 # Debug - count the tree (no variables)

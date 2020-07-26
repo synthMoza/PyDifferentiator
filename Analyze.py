@@ -1,11 +1,15 @@
 from Tokenize import token
 from Tokenize import isOperator
+from math import log1p
+from math import sin
+from math import cos
 
 # Grammar:
 # getHead ::= getPS (PlusSubtraction)
 # getPS ::= getMD {[op"+" / op"-"] getMD}*  (MultiplicationDivision)
-# getMD ::= getNB {[op"*" / op"/"] getNB}*  (NumberBrackets)
-# getNB ::= [num] | {[op"("] getPS [op")"]} 
+# getMD ::= getPW {[op"*" / op"/"] getPW}*  (NumberBrackets)
+# getPW ::= getNB {[op"^"] getNB}* (Power)
+# getNB ::= [num] | {[op"ln" / op"sin" / op"cos" / op"tg" / op"ctg"]}? {[op"("] getPS [op")"]} 
 
 class Node:
     def __init__(self, _value = 0, _type = "") -> None:
@@ -20,20 +24,28 @@ class Node:
         _node.children = self.children.copy()
 
         return _node
+    def isEmpty(self) -> bool:
+        """ Returns true if this node has no token in it, otherwise returns false """
+        return self.token_t.type == ""
 def printTree(_node) -> str:
         """ Returns the string of the tree recursively - for debug purposes only"""
         result = ""
         
-        if _node.children:
-            # If there are children in this node
+        if len(_node.children) == 1:
+            result += str(_node.token_t.value)
+            result += "("
+            result += printTree(_node.children[0])
+            result += ")"
+        elif len(_node.children) == 2:
             result += "("
             result += printTree(_node.children[0])
             result += str(_node.token_t.value)
             result += printTree(_node.children[1])
             result += ")"
-        else:
+        elif len(_node.children) == 0:
             result = str(_node.token_t.value)
-
+        else:
+            exit("Error! printTree(): too many children")
         return result
             
 def isCountable(_node) -> bool:
@@ -82,11 +94,27 @@ def countTree(_node) -> int:
                 sub = countTree(_node.children[1])
 
                 if sub != 0:
-                    result = countTree(_node.children[0]) / countTree(_node.children[1])
+                    result = countTree(_node.children[0]) / sub
                 else:
                     exit("Error! countTree(): divishion by zero")
+            elif _node.token_t.value == "^":
+                # Power
+
+                result = countTree(_node.children[0]) ** countTree(_node.children[1])
+            elif _node.token_t.value == "ln":
+                # Ln
+
+                result = log1p(countTree(_node.children[0]) - 1)
+            elif _node.token_t.value == "sin":
+                # Sin
+
+                result = sin(countTree(_node.children[0]))
+            elif _node.token_t.value == "cos":
+                # Sin
+
+                result = cos(countTree(_node.children[0]))
             else:
-                exit("Error! Unknown/uncountable operation: " +_node.token_t.value)
+                exit("Error! Unknown/uncountable operation: " + _node.token_t.value)
 
             # Debug print - temp result and current token
             # print("Current token is", _node.token_t)
@@ -153,9 +181,13 @@ class treeBuilder:
 
         # Debug print
         # print("Current rule is getHead(), current token", self.currentToken())
-        return self.getPS()
+
+        if self.token_list:
+            return self.getPS()
+        else:
+            exit("Error! getHead(): empty expression")
     def getPS(self) -> Node:
-        # getPS ::= getMD {[op"+" / op"-"] getMD}*  (MultiplicationDivision)
+        # getPS ::= getMD {[op"+" / op"-"] getMD}*
 
         # Debug print
         # print("Current rule is getPS(), current token", self.currentToken())
@@ -177,13 +209,12 @@ class treeBuilder:
             _node.children.append(_node_right)
             
         return _node
-            
     def getMD(self) -> Node:
-        # getMD ::= getNB {[op"*" / op"/"] getNB}*  (NumberBrackets)
+        # getMD ::= getPW {[op"*" / op"/"] getPW}*
 
         # Debug print
         # print("Current rule is getMD(), current token", self.currentToken())
-        _node = self.getNB()
+        _node = self.getPW()
         _node_left = Node()
         _node_right = Node()
                   
@@ -196,14 +227,38 @@ class treeBuilder:
 
             # Debug print
             # print("Current rule is getMD(), current token", self.currentToken())
-            _node_right = self.getNB()
+            _node_right = self.getPW()
             
             _node.children.append(_node_left)
             _node.children.append(_node_right)
             
         return _node
+    
+    def getPW(self) -> Node:
+        # getPW ::= getNB {[op"^"] getNB}* (Power)
+
+        # Debug print
+        # print("Current rule is getPW(), current token", self.currentToken())
+        _node = self.getNB()
+        _node_left = Node()
+        _node_right = Node()
+                  
+        while self.isOperator("^"):
+            _node_left = _node
+            _node = Node()
+
+            # Debug print
+            # print("Current rule is getPW(), current token", self.currentToken())
+            _node.setToken(self.currentToken())
+            self.nextToken()
+            _node_right = self.getNB()
+            
+            _node.children.append(_node_left)
+            _node.children.append(_node_right)
+        return _node
+            
     def getNB(self) -> Node:
-        # getNB ::= [num] | {[op"("] getPS [op")"]}
+        # getNB ::= [num] | {[op"ln" / op"sin" / op"cos" / op"tg" / op"ctg"]}? {[op"("] getPS [op")"]} 
 
         # Debug print
         # print("Current rule is getNB(), current token", self.currentToken())
@@ -213,15 +268,25 @@ class treeBuilder:
             self.nextToken()
             return _node
         else:
+            _node = Node()
+            t_node = Node()
+            
+            if self.isOperator("ln") or self.isOperator("sin") or self.isOperator("cos") or self.isOperator("tg") or self.isOperator("ctg"):
+                t_node.setToken(self.currentToken()) 
+                self.nextToken()    
             if self.isOperator("("):
                 self.nextToken()
                 _node = self.getPS()
                 if self.isOperator(")"):
                     self.nextToken()
-                    return _node
                 else:
                     self.errExp(") or number")
             else:
                 self.errExp("( or number")
+            if t_node.isEmpty():
+                return _node
+            else:
+                t_node.children.append(_node)
+                return t_node
 
         

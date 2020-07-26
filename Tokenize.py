@@ -1,7 +1,8 @@
 from sys import exit
 
 # The list of all supported operators and delimiters
-operators = ['+', '-', '*', '/', '(', ')']
+operators = ['+', '-', '*', '/', '(', ')', '^']
+c_operators = ["ln", "sin", "cos", "tg", "ctg"]
 delimiters = [' ', '\n','\t']
 
 # Token class that has its type (operation or number) and value
@@ -21,7 +22,6 @@ def isOperator(sym : chr) -> bool:
         return True
     else:
         return False
-
 def isVariable(sym : chr) -> bool:
     """ Return true if the given symbol is a supported variable, false if not """
     return sym == "x"
@@ -38,6 +38,7 @@ def tokenize(input_str : str) -> list:
     # The result list and the temp variable for numbers
     result = []
     raw_number = ""
+    raw_cop = ""
 
     # Add an extra space for tokenizing the last number properly
     input_str += delimiters[0]
@@ -50,6 +51,15 @@ def tokenize(input_str : str) -> list:
             _token.type = "num"
             result.append(_token)
             raw_number = ""
+        elif not sym.isalpha() and len(raw_cop) != 0:
+            if raw_cop in c_operators:
+                _token = token()
+                _token.value = raw_cop
+                _token.type = "op"
+                result.append(_token)
+                raw_cop = ""
+            else:
+                exit("Error! tokenize(): unknown complicated operator " + raw_cop)
         if isOperator(sym):
             # Create an operator token
             _token = token()
@@ -67,7 +77,9 @@ def tokenize(input_str : str) -> list:
         elif sym.isdigit():
             # Prepare the number for futher tokenization
             raw_number += sym
+        elif sym.isalpha():
+            # We might have a complcated operator (like "ln")
+            raw_cop += sym
         else:
-            exit("Fatal error: unknown symbol: " + sym)
-
+            exit("Error! tokenize(): unknown symbol " + sym)
     return result
