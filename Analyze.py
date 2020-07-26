@@ -8,15 +8,103 @@ from Tokenize import isOperator
 # getNB ::= [num] | {[op"("] getPS [op")"]} 
 
 class Node:
-    def __init__(self) -> None:
-        self.token_t = token()
+    def __init__(self, _value = 0, _type = "") -> None:
+        self.token_t = token(_value, _type)
         self.children = []
     def setToken(self, _token) -> None:
         """ Sets the value and the type of token of this node """
         self.token_t = _token
+    def copyNode(self):
+        """ Returns the copy of this node """
+        _node = Node(self.token_t.value, self.token_t.type)
+        _node.children = self.children.copy()
+
+        return _node
+def printTree(_node) -> str:
+        """ Returns the string of the tree recursively - for debug purposes only"""
+        result = ""
+        
+        if _node.children:
+            # If there are children in this node
+            result += "("
+            result += printTree(_node.children[0])
+            result += str(_node.token_t.value)
+            result += printTree(_node.children[1])
+            result += ")"
+        else:
+            result = str(_node.token_t.value)
+
+        return result
+            
+def isCountable(_node) -> bool:
+        """ Returns true if the tree is countable (there are no variables) """
+        result = True
+        
+        if _node.token_t.type == "var":
+            result = False
+        else:
+            if _node.children:
+                for child in _node.children:
+                    result = (result and isCountable(child))
+            else:
+                result = True
+
+        # Debug print
+        # printTree(_node)
+        # print(result)
+        # print("========================")
+
+        return result
+
+def countTree(_node) -> int:
+        """ Counts the given tree (no variable!!!) """
+        result = 0
+
+        if _node.token_t.type == "op":
+            # We got the operation
+            if _node.token_t.value == "+":
+                # Sum
+                for child in _node.children:
+                    result += countTree(child)
+            elif _node.token_t.value == "-":
+                # Subtraction
+                
+                result = countTree(_node.children[0]) - countTree(_node.children[1])
+            elif _node.token_t.value == "*":
+                # Multiplication
+                result = 1
+                
+                for child in _node.children:
+                    result *= countTree(child)
+            elif _node.token_t.value == "/":
+                # Division
+
+                sub = countTree(_node.children[1])
+
+                if sub != 0:
+                    result = countTree(_node.children[0]) / countTree(_node.children[1])
+                else:
+                    exit("Error! countTree(): divishion by zero")
+            else:
+                exit("Error! Unknown/uncountable operation: " +_node.token_t.value)
+
+            # Debug print - temp result and current token
+            # print("Current token is", _node.token_t)
+            # print("Current result is", result)
+            return result
+        elif _node.token_t.type == "num":
+            result = int(_node.token_t.value)
+            
+            # Debug print - temp result and current token
+            # print("Current token is", _node.token_t)
+            # print("Current result is", result)
+            return result
+        else:
+            exit("Error! Unknown token type " + _node.token_t.type)
+             
 
 class treeBuilder:
-    def __init__(self, t_list : list) -> None:
+    def __init__(self, t_list : list = []) -> None:
         # List of all tokens
         self.token_list = t_list
         # Current index (current token, if you wish)
@@ -45,6 +133,12 @@ class treeBuilder:
             return self.currentToken().type == "num"
         else:
             return False
+    def isVar(self) -> bool:
+        """ Returns true if the current token is a variable, false if not """
+        if self.tokenLeft():
+            return self.currentToken().type == "var"
+        else:
+            return False
     def errExp(self, exp) -> None:
         """ Throws an error on what was expected and what we got, then exits """
         print("Error!")
@@ -52,55 +146,7 @@ class treeBuilder:
             exit("Expected \"" + str(exp) + "\", got \"" + str(self.currentToken().value) + "\".")
         else:
             exit("Expected \"" + str(exp) + "\", got nothing.")
-    def printTree(self, _node) -> None:
-        """ Prints the tree recursively - for debug purposes only"""
-        if _node.children:
-            # If there are children in this node
-            self.printTree(_node.children[0])
-            print(_node.token_t.value)
-            self.printTree(_node.children[1])   
-        else:
-            print(_node.token_t.value)
-    def countTree(self, _node) -> int:
-        """ Counts the given tree (no variable!!!) """
-        result = 0
-        
-        if _node.token_t.type == "op":
-            # We got the operation
-            if _node.token_t.value == "+":
-                # Sum
-                for child in _node.children:
-                    result += self.countTree(child)
-            elif _node.token_t.value == "-":
-                # Subtraction
-                
-                result = self.countTree(_node.children[0]) - self.countTree(_node.children[1])
-            elif _node.token_t.value == "*":
-                # Multiplication
-                result = 1
-                
-                for child in _node.children:
-                    result *= self.countTree(child)
-            elif _node.token_t.value == "/":
-                # Division
-                
-                result = self.countTree(_node.children[0]) / self.countTree(_node.children[1])
-            else:
-                exit("Error! Unknown operation:", _node.token_t.value)
-
-            # Debug print - temp result and current token
-            # print("Current token is", _node.token_t)
-            # print("Current result is", result)
-            return result
-        elif _node.token_t.type == "num":
-            result = _node.token_t.value
-            
-            # Debug print - temp result and current token
-            # print("Current token is", _node.token_t)
-            # print("Current result is", result)
-            return result
-        else:
-            exit("Error! Unknown token type:", _node.token_t.type)
+       
     # The following functions are the rules of this grammar. Check the first lines of this module.
     def getHead(self) -> Node:
         # getHead ::= getPS (PlusSubtraction)
@@ -161,7 +207,7 @@ class treeBuilder:
 
         # Debug print
         # print("Current rule is getNB(), current token", self.currentToken())
-        if self.isNumber():
+        if self.isNumber() or self.isVar():
             _node = Node()
             _node.setToken(self.currentToken())
             self.nextToken()

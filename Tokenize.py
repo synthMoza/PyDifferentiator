@@ -8,9 +8,9 @@ delimiters = [' ', '\n','\t']
 # Avalible token types: "num", "op", "var"
 # "var" - only supported "x"
 class token:
-    def __init__(self) -> None:
-        self.value = 0
-        self.type = ""
+    def __init__(self, _value = 0, _type = "") -> None:
+        self.value = _value
+        self.type = _type
     def __repr__(self) -> str:
         """ For debugging purposes only - represents as its value"""
         return "Type: " + str(self.type) + "\tValue: " + str(self.value)
